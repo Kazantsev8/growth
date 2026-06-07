@@ -492,6 +492,13 @@ async function renderFallback(m, host){
 // ——— экраны ———
 const root = document.getElementById("root");
 
+// центрирует активный элемент в горизонтальной ленте; меняет только scrollLeft контейнера
+function centerInScroller(scroller, activeEl){
+  if(!scroller || !activeEl) return;
+  const cr = scroller.getBoundingClientRect(), er = activeEl.getBoundingClientRect();
+  scroller.scrollLeft += (er.left - cr.left) - (scroller.clientWidth - activeEl.offsetWidth) / 2;
+}
+
 function viewApp(){
   root.innerHTML="";
   const wrap = el(`<div class="wrap"></div>`);
@@ -502,8 +509,10 @@ function viewApp(){
   wrap.appendChild(el(`<hr class="rule">`));
 
   const tabs = el(`<div class="tabs"></div>`);
+  let activeTabEl = null;
   modules.forEach((m,i)=>{
     const t=el(`<button class="tab ${m.id===activeId?"active":""}" style="animation-delay:${i*45}ms"><span class="ti">${esc(m.icon||"•")}</span>${esc(m.title||m.id)}</button>`);
+    if(m.id===activeId) activeTabEl = t;
     t.onclick=()=>{ activeId=m.id; activeArtifact=null; viewApp(); };
     tabs.appendChild(t);
   });
@@ -515,6 +524,9 @@ function viewApp(){
   const host = el(`<div id="content"><div class="loading"><div class="spin"></div> reading…</div></div>`);
   wrap.appendChild(host);
   root.appendChild(wrap);
+
+  // держим активную вкладку в кадре: пересборка сбрасывает горизонтальный скролл
+  centerInScroller(tabs, activeTabEl);
 
   document.getElementById("themeBtn").onclick = toggleTheme;
   document.getElementById("setBtn").onclick = ()=>{ if(confirm("Изменить подключение?")) viewSetup(conn); };
@@ -813,12 +825,15 @@ async function renderModule(m, host){
   host.innerHTML = "";
   if(arts.length > 1){
     const st = el(`<div class="subtabs"></div>`);
+    let activeSubEl = null;
     arts.forEach(x=>{
       const b = el(`<button class="subtab ${x.id===a.id?"active":""}">${esc(x.title||x.id)}</button>`);
+      if(x.id===a.id) activeSubEl = b;
       b.onclick = ()=>{ activeArtifact = x.id; renderModule(m, host); };
       st.appendChild(b);
     });
     host.appendChild(st);
+    centerInScroller(st, activeSubEl);
   }
   const content = el(`<div id="artContent"><div class="loading"><div class="spin"></div> reading…</div></div>`);
   host.appendChild(content);
