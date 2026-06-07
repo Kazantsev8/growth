@@ -1,0 +1,10 @@
+# Файлы данных Growth на Mail.ru (пути от корня WebDAV).
+# Динамические конспекты сюда не вносим — их пушим точечно:
+#   ./sync-data.sh push "Obsidian Vault/Professional/iOS/Имя.md"
+GrowthApp/config.md
+Obsidian Vault/Personal/English/Vocabulary.md
+Obsidian Vault/Personal/English/English_tenses.md
+Obsidian Vault/Personal/English/English_conditionals.md
+Obsidian Vault/Personal/English/English_irregular_verbs.md
+Obsidian Vault/Personal/English/English_backlog.md
+Obsidian Vault/Professional/iOS/iOS_Senior_Plus_Roadmap.md
