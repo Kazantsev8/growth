@@ -2,7 +2,7 @@
 <html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#e7e3d8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -35,6 +35,10 @@
   html,body{height:100%}
   body{font-family:var(--grotesk);background:var(--bg);color:var(--ink);
     -webkit-font-smoothing:antialiased;line-height:1.45;min-height:100dvh;transition:background .25s,color .25s}
+  html{-webkit-text-size-adjust:100%}
+  body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+  /* текстовый контент оставляем выделяемым/копируемым */
+  .doc,.tr,.ex,.note-line,.ntext,.word,input,textarea{user-select:text;-webkit-user-select:text}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:max(22px,env(safe-area-inset-top)) 22px 64px}
   .mono{font-family:var(--mono)}
 
@@ -178,6 +182,34 @@
   .ncard-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
   .ndate{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.5px}
   .ntext{font-family:var(--mono);font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+
+
+  /* doclist (Notes) */
+  .frow-btn{appearance:none;-webkit-appearance:none;width:100%;text-align:left;font:inherit;color:inherit}
+  .backbtn{margin-bottom:14px}
+  /* roadmap */
+  .rm-dash{margin-bottom:22px}
+  .rm-overall{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+  .rm-pct{font-family:var(--grotesk);font-weight:800;font-size:34px;letter-spacing:-1px}
+  .rm-sub{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .rm-phase{border:1.5px solid var(--line);margin-bottom:10px;animation:fade .25s ease both}
+  .rm-phead{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;background:var(--card)}
+  .rm-phead .pn{flex:1;font-family:var(--grotesk);font-weight:700;font-size:15px;line-height:1.2}
+  .rm-phead .pc{font-family:var(--mono);font-size:11px;color:var(--faint);flex:0 0 auto}
+  .rm-chev{font-family:var(--mono);color:var(--faint);flex:0 0 auto;width:14px;text-align:center}
+  .rm-phase.open .rm-chev{color:var(--accent)}
+  .segbar.rm-pbar{gap:2px;padding:0 15px 12px;margin:0;background:var(--card)}
+  .segbar.rm-pbar .seg{height:6px}
+  .rm-body{padding:4px 15px 14px;background:var(--card);border-top:1.5px solid var(--line-soft)}
+  .rm-ms{margin:14px 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.5px;color:var(--faint);text-transform:uppercase}
+  .rm-s{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-top:1px solid var(--line-soft)}
+  .rm-cb{flex:0 0 auto;width:20px;height:20px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;cursor:pointer;color:var(--on-accent);background:transparent;margin-top:1px;padding:0}
+  .rm-cb.done{background:var(--accent);border-color:var(--accent)}
+  .rm-smain{flex:1;cursor:pointer;min-width:0}
+  .rm-stitle{font-size:14px;line-height:1.35}
+  .rm-smeta{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:3px;word-break:break-word}
+  .rm-size{font-weight:700;color:var(--accent)}
+  .rm-sdesc{font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.55;margin-top:8px}
 
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   @keyframes fade{from{opacity:0}to{opacity:1}}
@@ -496,6 +528,8 @@ async function renderArtifact(m, a, host){
     if(a.kind==="vocabulary")      await renderVocabulary(fp, host);
     else if(a.kind==="doc")        await renderDoc(fp, host);
     else if(a.kind==="notes")      await renderNotes(fp, host);
+    else if(a.kind==="roadmap")    await renderRoadmap(fp, host);
+    else if(a.kind==="doclist")    await renderDocList(fp, host, a);
     else if(a.kind==="checklist")  await renderChecklist({path:fp, id:m.id}, host);
     else                           await renderFallback({path:fp, kind:a.kind, id:m.id}, host);
   }catch(e){
@@ -601,6 +635,161 @@ async function renderNotes(filePath, host){
     catch(e){ notes.shift(); alert("Не удалось сохранить: "+e.message); }
     finally{ btn.disabled=false; btn.textContent="Добавить заметку"; }
   };
+  draw();
+}
+
+
+// ——— Notes: браузер конспектов (doclist) ———
+async function renderDocList(folder, host, a){
+  setCount("");
+  let items;
+  try{ items = (await listDir(folder)).filter(x=>!x.isDir && x.name.toLowerCase().endsWith(".md")); }
+  catch(e){ const code=(String(e.message).match(/HTTP (\d+)/)||[])[1];
+    host.innerHTML = code==="404" ? `<div class="empty">Папка не найдена в vault.</div>` : `<div class="note err">Ошибка: ${esc(e.message)}</div>`; return; }
+  const ex = new Set(((a&&a.exclude)||[]).map(x=>x.toLowerCase()));
+  items = items.filter(x=>!ex.has(x.name.toLowerCase()));
+  function showList(){
+    setCount(items.length + (items.length===1?" note":" notes"));
+    if(!items.length){ host.innerHTML=`<div class="empty">Конспектов нет.<br>Добавь .md-файлы в папку направления.</div>`; return; }
+    host.innerHTML = `<div class="filelist"></div>`;
+    const list = host.querySelector(".filelist");
+    for(const it of items){
+      const row = el(`<button class="frow frow-btn"><span class="fn">${esc(it.name.replace(/\.md$/i,""))}</span><span class="fm">md ›</span></button>`);
+      row.onclick = ()=>openDoc(it);
+      list.appendChild(row);
+    }
+  }
+  async function openDoc(it){
+    host.innerHTML = `<div class="loading"><div class="spin"></div> reading…</div>`;
+    await renderDoc(folder + "/" + it.name, host);
+    const back = el(`<button class="hbtn backbtn">← к списку</button>`);
+    back.onclick = showList;
+    host.insertBefore(back, host.firstChild);
+  }
+  showList();
+}
+
+// ——— Roadmap ———
+function parseRoadmap(md){
+  const lines = md.split(/\r?\n/);
+  const phases=[]; let cp=null, cm=null;
+  const reP=/^##\s+Phase\s+(\d+)\s*[—-]\s*(.+)$/;
+  const reM=/^###\s+Milestone\s+([\d.]+)\s*[—-]\s*(.+)$/;
+  const reS=/^\s*-\s*\[([ xX])\]\s*\*\*([\d.]+)\*\*\s*`([SML])`\s*(.+)$/;
+  for(const ln of lines){
+    let m;
+    if(m=ln.match(reP)){ cp={id:m[1], name:m[2].trim(), milestones:[]}; phases.push(cp); cm=null; continue; }
+    if(cp && (m=ln.match(reM))){ cm={id:m[1], name:m[2].trim(), sessions:[]}; cp.milestones.push(cm); continue; }
+    if(cm && (m=ln.match(reS))){
+      let rest=m[4].trim();
+      const tags=(rest.match(/#[\w-]+/g)||[]).map(t=>t.slice(1));
+      rest=rest.replace(/#[\w-]+/g,"").trim();
+      let title=rest, desc="";
+      const sep=rest.indexOf(" — ");
+      if(sep>=0){ title=rest.slice(0,sep).trim(); desc=rest.slice(sep+3).trim(); }
+      cm.sessions.push({id:m[2], size:m[3], title, desc, tags, done:/x/i.test(m[1])});
+    }
+  }
+  return phases;
+}
+function setSession(md, id, done){
+  const e=id.replace(/\./g,"\\.");
+  md = md.replace(new RegExp("^(\\s*-\\s*\\[)[ xX](\\]\\s*\\*\\*"+e+"\\*\\*)","m"), "$1"+(done?"x":" ")+"$2");
+  md = md.replace(new RegExp("^(\\|\\s*"+e+"\\s*\\|.*\\|\\s*)(?:✅|⬜|⬛|☑️)(\\s*\\|)\\s*$","m"), "$1"+(done?"✅":"⬜")+"$2");
+  return md;
+}
+function syncRoadmapMeta(md){
+  const all=[...md.matchAll(/^\s*-\s*\[([ xX])\]\s*\*\*[\d.]+\*\*\s*`[SML]`/gm)];
+  const total=all.length, done=all.filter(m=>/x/i.test(m[1])).length;
+  const pct=total?Math.round(done/total*100):0;
+  md=md.replace(/(sessions_completed:\s*)\d+/, "$1"+done);
+  md=md.replace(/(sessions_total:\s*)\d+/, "$1"+total);
+  md=md.replace(/(percent_complete:\s*)\d+/, "$1"+pct);
+  const nx=[...md.matchAll(/^\s*-\s*\[ \]\s*\*\*([\d.]+)\*\*/gm)][0];
+  if(nx){ const id=nx[1], pr=id.split(".");
+    md=md.replace(/(next_session:\s*)"[^"]*"/, '$1"'+id+'"');
+    md=md.replace(/(current_phase:\s*)\d+/, "$1"+pr[0]);
+    if(pr.length>=2) md=md.replace(/(current_milestone:\s*)"[^"]*"/, '$1"'+pr[0]+"."+pr[1]+'"');
+  }
+  const parts = md.split(/(?=^##\s+Phase\s+\d+\b)/m);
+  for(let i=0;i<parts.length;i++){
+    if(/^##\s+Phase\s+\d+/.test(parts[i])){
+      const dn=(parts[i].match(/^\s*-\s*\[x\]\s*\*\*[\d.]+\*\*\s*`[SML]`/gmi)||[]).length;
+      parts[i]=parts[i].replace(/(\*\*Done:\*\*\s*)\d+/, "$1"+dn);
+    }
+  }
+  return parts.join("");
+}
+function rmBar(d,t,n,extra){
+  const on=t?Math.round(d/t*n):0;
+  let b=`<div class="segbar ${extra||""}">`;
+  for(let i=0;i<n;i++) b+=`<div class="seg ${i<on?"on":""}"></div>`;
+  return b+`</div>`;
+}
+async function renderRoadmap(filePath, host){
+  let raw;
+  try{ raw = await getText(filePath); }
+  catch(e){ const code=(String(e.message).match(/HTTP (\d+)/)||[])[1];
+    host.innerHTML = code==="404" ? `<div class="empty">Нет файла <b>${esc(filePath.split("/").pop())}</b>.</div>` : `<div class="note err">Ошибка: ${esc(e.message)}</div>`; return; }
+  let phases = parseRoadmap(bodyOf(raw));
+  if(!phases.length){ host.innerHTML=`<div class="empty">Не удалось разобрать роадмап (нет фаз/сессий).</div>`; return; }
+  let saving=false;
+  const expanded=new Set(), openDesc=new Set();
+  const fm=parseFrontmatter(raw)||{};
+  let cur = fm.progress && fm.progress.current_phase!=null ? String(fm.progress.current_phase) : null;
+  if(!cur){ const pp=phases.find(p=>p.milestones.some(m=>m.sessions.some(s=>!s.done))); cur=pp?pp.id:(phases[0]&&phases[0].id); }
+  if(cur) expanded.add(cur);
+
+  function find(id){ for(const p of phases) for(const m of p.milestones) for(const s of m.sessions) if(s.id===id) return s; return null; }
+  function stat(arrFn){ let t=0,d=0; arrFn(s=>{t++; if(s.done)d++;}); return {t,d}; }
+  function allStat(){ return stat(cb=>{ for(const p of phases) for(const m of p.milestones) for(const s of m.sessions) cb(s); }); }
+  function phStat(p){ return stat(cb=>{ for(const m of p.milestones) for(const s of m.sessions) cb(s); }); }
+
+  async function toggle(s){
+    if(saving) return; saving=true;
+    const prev=s.done; s.done=!s.done;
+    raw = syncRoadmapMeta(setSession(raw, s.id, s.done));
+    try{ await putText(filePath, raw); draw(); }
+    catch(e){ s.done=prev; alert("Не удалось сохранить: "+e.message); }
+    finally{ saving=false; }
+  }
+
+  function draw(){
+    const a=allStat(); const pct=a.t?Math.round(a.d/a.t*100):0;
+    setCount(a.d+" / "+a.t);
+    let h=`<div class="rm-dash"><div class="rm-overall"><span class="rm-pct">${pct}%</span><span class="rm-sub">${a.d} / ${a.t} sessions</span></div>${rmBar(a.d,a.t,24)}</div>`;
+    for(const p of phases){
+      const ps=phStat(p); const open=expanded.has(p.id);
+      h+=`<div class="rm-phase ${open?"open":""}">
+        <div class="rm-phead" data-ph="${esc(p.id)}">
+          <span class="pn">Phase ${esc(p.id)} · ${esc(p.name)}</span>
+          <span class="pc">${ps.d}/${ps.t}</span><span class="rm-chev">${open?"−":"+"}</span>
+        </div>
+        ${rmBar(ps.d,ps.t,20,"rm-pbar")}`;
+      if(open){
+        h+=`<div class="rm-body">`;
+        for(const ms of p.milestones){
+          h+=`<div class="rm-ms">${esc(ms.id)} · ${esc(ms.name)}</div>`;
+          for(const s of ms.sessions){
+            const od=openDesc.has(s.id);
+            h+=`<div class="rm-s">
+              <button class="rm-cb ${s.done?"done":""}" data-cb="${esc(s.id)}">${s.done?"✓":""}</button>
+              <div class="rm-smain" data-s="${esc(s.id)}">
+                <div class="rm-stitle">${esc(s.title)}</div>
+                <div class="rm-smeta"><span class="rm-size">${esc(s.size)}</span> · ${esc(s.id)}${s.tags.length?" · "+esc(s.tags.map(t=>"#"+t).join(" ")):""}</div>
+                ${od&&s.desc?`<div class="rm-sdesc">${esc(s.desc)}</div>`:""}
+              </div></div>`;
+          }
+        }
+        h+=`</div>`;
+      }
+      h+=`</div>`;
+    }
+    host.innerHTML=h;
+    host.querySelectorAll(".rm-phead").forEach(e=>e.onclick=()=>{ const id=e.dataset.ph; expanded.has(id)?expanded.delete(id):expanded.add(id); draw(); });
+    host.querySelectorAll(".rm-cb").forEach(e=>e.onclick=(ev)=>{ ev.stopPropagation(); const s=find(e.dataset.cb); if(s) toggle(s); });
+    host.querySelectorAll(".rm-smain").forEach(e=>e.onclick=()=>{ const id=e.dataset.s; openDesc.has(id)?openDesc.delete(id):openDesc.add(id); draw(); });
+  }
   draw();
 }
 
