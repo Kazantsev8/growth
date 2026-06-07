@@ -5,7 +5,7 @@
 ## Структура
 
 ```
-app/      — приложение (публикуется на growth.pages.dev)
+app/      — приложение (публикуется на growth-ao5.pages.dev)
 worker/   — CORS-прокси Cloudflare Worker
 docs/     — Claude.md (AI-хендоф) + guides/ (гайды направлений)
 ```
@@ -13,7 +13,7 @@ docs/     — Claude.md (AI-хендоф) + guides/ (гайды направле
 ## Деплой приложения — автоматический
 
 Cloudflare Pages привязан к этому репозиторию (output-директория `app/`, ветка `main`).
-**Любой push в `main` сам публикует апп** на `https://growth.pages.dev`:
+**Любой push в `main` сам публикует апп** на `https://growth-ao5.pages.dev`:
 
 ```
 git add -A && git commit -m "..." && git push

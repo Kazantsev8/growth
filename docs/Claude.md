@@ -24,7 +24,7 @@
 
 ## Инфраструктура (всё бесплатно, без бэкенда)
 
-- **Клиент:** одностраничный PWA на ванильном JS (один файл `index.html`). Хостинг — **Cloudflare Pages** (`https://growth.pages.dev`), ставится на iPhone как PWA.
+- **Клиент:** одностраничный PWA на ванильном JS (один файл `index.html`). Хостинг — **Cloudflare Pages** (`https://growth-ao5.pages.dev`), ставится на iPhone как PWA.
 - **Хранилище (источник истины):** Markdown-файлы на **Mail.ru WebDAV** (`https://webdav.cloud.mail.ru`) — это облако пользователя.
 - **Мост:** **Cloudflare Worker** `growth-dav` (`https://growth-dav.vans-bleat.workers.dev`) — CORS-прокси перед Mail.ru. Защищён заголовком `X-Proxy-Secret`. Бизнес-логики не содержит.
 - **Авторизация:** пароль приложения Mail.ru (Basic auth), вводится в аппе и хранится локально на устройстве. URL воркера, секрет и логин зашиты константами в коде аппа.
@@ -32,7 +32,7 @@
 ## Репозиторий, деплой и хендоф
 
 - **Код — в публичном git-репозитории:** `https://github.com/Kazantsev8/growth`
-- **Деплой приложения автоматический:** Cloudflare Pages привязан к репозиторию (output-директория `app/`, ветка `main`). Любой `git push` в `main` сам публикует апп на `growth.pages.dev`.
+- **Деплой приложения автоматический:** Cloudflare Pages привязан к репозиторию (output-директория `app/`, ветка `main`). Любой `git push` в `main` сам публикует апп на `growth-ao5.pages.dev`.
 - **Деплой воркера — вручную (редко):** `cd worker && npx wrangler deploy`.
 
 **Процедура хендофа в новую AI-сессию:**
