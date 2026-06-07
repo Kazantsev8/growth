@@ -62,6 +62,12 @@ modules:
     enabled: true
     settings:
       weeklyTarget: 3
+  - id: tasks
+    title: Tasks
+    icon: "✅"
+    order: 5
+    enabled: true
+    # path / kind / artifacts — проектируется на следующем шаге (персональный Task Tracker)
 ---
 
 # GrowthApp
