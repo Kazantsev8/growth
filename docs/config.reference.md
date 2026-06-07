@@ -64,8 +64,8 @@ modules:
       weeklyTarget: 3
   - id: tasks
     title: Tasks
-    icon: "✅"
-    order: 5
+    icon: "📋"
+    order: 0
     enabled: true
     # path / kind / artifacts — проектируется на следующем шаге (персональный Task Tracker)
 ---

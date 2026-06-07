@@ -213,10 +213,22 @@
 
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   @keyframes fade{from{opacity:0}to{opacity:1}}
+  /* кнопка «наверх» — появляется при скролле, поверх всего, снизу по центру */
+  .totop{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 20px);
+    transform:translateX(-50%) translateY(16px);z-index:1000;
+    display:flex;align-items:center;gap:7px;
+    font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;
+    background:var(--tab-bg);color:var(--ink);border:1.5px solid var(--line);
+    padding:10px 16px;cursor:pointer;
+    opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease,background .15s,color .15s}
+  .totop .ar{font-size:14px;line-height:1}
+  .totop.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+  .totop:hover{background:var(--ink);color:var(--bg)}
 </style>
 </head>
 <body>
 <div id="root"></div>
+<button id="toTop" class="totop" aria-label="Наверх"><span class="ar">↑</span>top</button>
 <script>
 "use strict";
 
@@ -855,6 +867,18 @@ async function boot(){
   try{ modules=await loadConfig(); activeId=modules.length?modules[0].id:null; viewApp(); }
   catch(e){ viewSetup(conn); }
 }
+// кнопка «наверх»: видна, когда страница прокручена не от самого верха
+(function(){
+  const btn = document.getElementById("toTop");
+  if(!btn) return;
+  const SHOW_AT = 8; // «scroll offset не 0» — крошечный порог гасит дрожание у самой кромки
+  const upd = ()=>{ btn.classList.toggle("show", window.scrollY > SHOW_AT); };
+  window.addEventListener("scroll", upd, {passive:true});
+  window.addEventListener("resize", upd, {passive:true});
+  btn.addEventListener("click", ()=> window.scrollTo({top:0, behavior:"smooth"}));
+  upd();
+})();
+
 boot();
 </script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
