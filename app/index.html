@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e7e3d8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Growth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<style>
+  :root{
+    --grotesk:"Hanken Grotesk",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --maxw:680px;
+  }
+  /* ——— СВЕТЛАЯ: тёплая бумага ——— */
+  html[data-theme="light"]{
+    --bg:#e7e3d8; --ink:#181612; --muted:#4d473c; --faint:#8a8273;
+    --line:#181612; --line-soft:#c3bdaf; --accent:#cf3a1a; --card:#ece8dd;
+    --tab-bg:#e7e3d8; --tab-active-bg:#181612; --tab-active-fg:#e7e3d8; --on-accent:#fdf6ee;
+  }
+  /* ——— ТЁМНАЯ: фиолетово-чёрная, мягкий сиреневый ——— */
+  html[data-theme="dark"]{
+    --bg:#0c0a11; --ink:#e9e6f2; --muted:#9d96b0; --faint:#615b76;
+    --line:#2a2438; --line-soft:#221d2e; --accent:#a89cea; --card:#100d18;
+    --tab-bg:#15121e; --tab-active-bg:#a89cea; --tab-active-fg:#15101e; --on-accent:#15101e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--grotesk);background:var(--bg);color:var(--ink);
+    -webkit-font-smoothing:antialiased;line-height:1.45;min-height:100dvh;transition:background .25s,color .25s}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:max(22px,env(safe-area-inset-top)) 22px 64px}
+  .mono{font-family:var(--mono)}
+
+  header.app{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px;animation:rise .45s ease both}
+  .brand{font-family:var(--grotesk);font-weight:800;font-size:34px;letter-spacing:-1px;line-height:.95}
+  .brand .dot{color:var(--accent)}
+  .brand-sub{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--faint);margin-top:6px;text-transform:uppercase}
+  .head-actions{display:flex;gap:8px;flex-shrink:0}
+  .hbtn{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;
+    background:transparent;color:var(--ink);border:1.5px solid var(--line);padding:9px 12px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .hbtn:hover{background:var(--ink);color:var(--bg)}
+  .rule{height:0;border:0;border-top:2.5px solid var(--line);margin:6px 0 20px}
+
+  .tabs{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:26px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:13px;
+    letter-spacing:1px;text-transform:uppercase;background:var(--tab-bg);color:var(--muted);
+    border:1.5px solid var(--line);padding:13px 17px;cursor:pointer;transition:.15s;white-space:nowrap;animation:rise .45s ease both}
+  .tab .ti{font-size:16px}
+  .tab:hover{color:var(--ink)}
+  .tab.active{background:var(--tab-active-bg);color:var(--tab-active-fg);border-color:var(--tab-active-bg)}
+
+  .sec{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px;animation:fade .3s ease both}
+  .sec-l{display:flex;align-items:center;gap:13px}
+  .sec-ico{font-size:26px}
+  .sec h2{font-family:var(--grotesk);font-weight:800;font-size:30px;letter-spacing:-.5px;text-transform:uppercase}
+  .sec-count{font-family:var(--mono);font-size:14px;color:var(--accent);font-weight:500;white-space:nowrap}
+  .rule-thin{height:0;border:0;border-top:1.5px solid var(--line);margin:14px 0 20px}
+
+  .cards{border:1.5px solid var(--line);animation:fade .3s ease both}
+  .card{padding:17px 18px;border-bottom:1.5px solid var(--line);background:var(--card)}
+  .card:last-child{border-bottom:0}
+  .card-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .word{font-family:var(--grotesk);font-weight:800;font-size:24px;letter-spacing:-.5px}
+  .pos{font-family:var(--mono);font-size:11px;color:var(--faint);text-transform:uppercase;margin-left:8px;letter-spacing:.5px}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:1px;white-space:nowrap}
+  .tag.mastered{color:var(--accent)}
+  .tag.learning{color:var(--faint)}
+  .tr{font-size:15px;color:var(--ink);margin-bottom:5px}
+  .ex{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.5}
+  .ex .gt{color:var(--accent);font-weight:700;margin-right:7px}
+  .note-line{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-top:6px}
+  .search{width:100%;background:var(--card);border:1.5px solid var(--line);color:var(--ink);padding:12px 14px;font-family:var(--mono);font-size:13px;transition:.15s;-webkit-appearance:none}
+  .search:focus{outline:none;border-color:var(--accent)}
+  .search::placeholder{color:var(--faint)}
+  .vtoolbar{display:flex;gap:8px;margin-bottom:16px}
+  .vtoolbar .search{flex:1}
+  .addbtn{flex:0 0 auto;background:var(--accent);color:var(--on-accent);border:1.5px solid var(--accent);padding:0 16px;font-family:var(--mono);font-size:18px;font-weight:700;cursor:pointer;line-height:1;transition:.15s}
+  .addbtn:hover{filter:brightness(1.05)}
+  .addform{border:1.5px solid var(--line);background:var(--card);padding:16px;margin-bottom:18px;animation:fade .2s ease both}
+  .addform .field{margin-bottom:12px}
+  .addform .grow{display:flex;gap:8px}
+  .addform .grow .field{flex:1}
+  .chk{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:14px;user-select:none}
+  .formbtns{display:flex;gap:8px}
+  .formbtns .btn{margin-top:0}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .card-right{display:flex;align-items:center;gap:12px;flex:0 0 auto}
+  .del{background:none;border:none;color:var(--faint);font-family:var(--mono);font-size:19px;line-height:1;cursor:pointer;padding:0 2px;transition:.15s}
+  .del:hover{color:var(--accent)}
+
+  .progress-label{font-family:var(--mono);font-size:14px;color:var(--ink);margin-bottom:11px}
+  .progress-label b{color:var(--accent);font-weight:500}
+  .segbar{display:flex;gap:3px;margin-bottom:24px}
+  .seg{flex:1;height:18px;border:1.5px solid var(--line)}
+  .seg.on{background:var(--accent);border-color:var(--accent)}
+  .checklist{display:flex;flex-direction:column;gap:18px;animation:fade .3s ease both}
+  .citem{display:flex;gap:14px;align-items:flex-start}
+  .cbox{font-family:var(--mono);font-size:14px;font-weight:700;flex:0 0 auto;line-height:1.4}
+  .cbox.done{color:var(--accent)}
+  .cbox.todo{color:var(--faint)}
+  .ctext{font-family:var(--mono);font-size:14px;letter-spacing:.5px;text-transform:uppercase;line-height:1.4}
+  .citem.todo .ctext{color:var(--faint)}
+
+  .filelist{border:1.5px solid var(--line);animation:fade .3s ease both}
+  .frow{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1.5px solid var(--line);background:var(--card);font-family:var(--mono);font-size:13px}
+  .frow:last-child{border-bottom:0}
+  .frow .fn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .frow .fm{color:var(--faint);flex:0 0 auto}
+  .kindnote{font-family:var(--mono);font-size:11px;color:var(--faint);margin-bottom:12px;letter-spacing:.5px}
+
+  .empty,.note{padding:30px 18px;text-align:center;font-family:var(--mono);font-size:13px;color:var(--faint);border:1.5px dashed var(--line-soft);line-height:1.6}
+  .note.err{color:var(--accent);border-color:var(--accent)}
+  .loading{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-size:13px;color:var(--muted);padding:28px 2px}
+  .spin{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);animation:spin .7s linear infinite}
+
+  .center{display:flex;flex-direction:column;justify-content:center;min-height:100dvh;padding:26px 22px;max-width:var(--maxw);margin:0 auto}
+  .setup .brand{font-size:40px;margin-bottom:4px}
+  .setup .lead{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:14px 0 26px;line-height:1.6;letter-spacing:.3px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+  .field input{width:100%;background:var(--card);border:1.5px solid var(--line);color:var(--ink);padding:13px 14px;font-family:var(--mono);font-size:13.5px;transition:.15s}
+  .field input:focus{outline:none;border-color:var(--accent)}
+  .hint{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:6px;line-height:1.5}
+  .btn{width:100%;margin-top:10px;background:var(--accent);color:var(--on-accent);border:1.5px solid var(--accent);padding:15px;font-family:var(--mono);font-weight:700;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:.15s}
+  .btn:hover{filter:brightness(1.05)}
+  .btn:disabled{opacity:.55;cursor:default}
+  .formerr{font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:14px;min-height:1px;line-height:1.5}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .subtabs{display:flex;gap:18px;overflow-x:auto;margin-bottom:18px;scrollbar-width:none;border-bottom:1.5px solid var(--line-soft)}
+  .subtabs::-webkit-scrollbar{display:none}
+  .subtab{flex:0 0 auto;background:none;border:none;border-bottom:2px solid transparent;color:var(--faint);font-family:var(--mono);font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:0 0 10px;cursor:pointer;transition:.15s;margin-bottom:-1.5px}
+  .subtab:hover{color:var(--ink)}
+  .subtab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+  .doc{font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--ink);animation:fade .3s ease both;overflow-wrap:break-word}
+  .doc h1{font-family:var(--grotesk);font-weight:800;font-size:25px;letter-spacing:-.5px;margin:0 0 12px;line-height:1.1}
+  .doc h2{font-family:var(--grotesk);font-weight:800;font-size:20px;letter-spacing:-.3px;margin:26px 0 10px;padding-top:18px;border-top:1.5px solid var(--line)}
+  .doc h3{font-family:var(--grotesk);font-weight:700;font-size:16px;margin:20px 0 8px}
+  .doc p{margin:0 0 12px}
+  .doc ul,.doc ol{margin:0 0 12px 20px}
+  .doc li{margin:3px 0}
+  .doc a{color:var(--accent);text-decoration:none}
+  .doc a:hover{text-decoration:underline}
+  .doc strong{font-weight:700;color:var(--ink)}
+  .doc em{font-style:italic}
+  .doc code{font-family:var(--mono);background:var(--card);border:1px solid var(--line-soft);padding:1px 5px;font-size:12px}
+  .doc pre{background:var(--card);border:1.5px solid var(--line);padding:12px;overflow-x:auto;margin:0 0 14px}
+  .doc pre code{border:none;background:none;padding:0}
+  .doc blockquote{border-left:3px solid var(--accent);margin:0 0 14px;padding:4px 0 4px 14px;color:var(--muted)}
+  .doc hr{border:0;border-top:1.5px solid var(--line);margin:22px 0}
+  .doc table{border-collapse:collapse;width:100%;margin:0 0 16px;font-size:12px;display:block;overflow-x:auto}
+  .doc th,.doc td{border:1.5px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  .doc th{background:var(--card);font-weight:700}
+  .doc img{max-width:100%}
+
+  .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:24px;z-index:1000;animation:fade .15s ease both}
+  .modal{background:var(--bg);border:1.5px solid var(--line);max-width:380px;width:100%;padding:22px;animation:rise .2s ease both}
+  .modal-msg{font-family:var(--mono);font-size:14px;color:var(--ink);line-height:1.5;margin-bottom:18px}
+  .modal-btns{display:flex;gap:8px}
+  .modal-btns .btn{margin-top:0;flex:1}
+
+  .compose{margin-bottom:20px}
+  .compose textarea{width:100%;min-height:84px;resize:vertical;background:var(--card);border:1.5px solid var(--line);color:var(--ink);padding:12px 14px;font-family:var(--mono);font-size:13px;line-height:1.55;transition:.15s;-webkit-appearance:none}
+  .compose textarea:focus{outline:none;border-color:var(--accent)}
+  .compose textarea::placeholder{color:var(--faint)}
+  .compose .formbtns{margin-top:8px}
+  .ncard{border:1.5px solid var(--line);background:var(--card);padding:14px 16px;margin-bottom:10px;animation:fade .25s ease both}
+  .ncard-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .ndate{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.5px}
+  .ntext{font-family:var(--mono);font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+"use strict";
+
+const CONFIG_PATH = "GrowthApp/config.md";
+const STORE_KEY = "growth.connection.v1";
+const THEME_KEY = "growth.theme";
+const PROPFIND_BODY =
+  '<?xml version="1.0"?><d:propfind xmlns:d="DAV:"><d:prop>' +
+  '<d:getlastmodified/><d:getcontentlength/><d:resourcetype/></d:prop></d:propfind>';
+
+let conn = null;
+const mem = {};
+let modules = [];
+let activeId = null;
+let activeArtifact = null;
+
+// ——— тема ———
+function loadTheme(){
+  let t; try{ t = localStorage.getItem(THEME_KEY); }catch(e){}
+  if(!t) t = (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  return t;
+}
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  document.querySelector('meta[name=theme-color]').setAttribute("content", t==="dark" ? "#0c0a11" : "#e7e3d8");
+  try{ localStorage.setItem(THEME_KEY, t); }catch(e){}
+}
+function curTheme(){ return document.documentElement.getAttribute("data-theme"); }
+function toggleTheme(){
+  applyTheme(curTheme()==="dark" ? "light" : "dark");
+  const b = document.getElementById("themeBtn"); if(b) b.textContent = curTheme()==="dark" ? "LIGHT" : "DARK";
+}
+applyTheme(loadTheme());
+
+// ——— подключение ———
+function loadConn(){ try{ const r=localStorage.getItem(STORE_KEY); if(r) return JSON.parse(r);}catch(e){} return mem[STORE_KEY]||null; }
+function saveConn(c){ mem[STORE_KEY]=c; try{ localStorage.setItem(STORE_KEY, JSON.stringify(c)); }catch(e){} }
+
+// ——— WebDAV через воркер ———
+function encodePath(p){ const tr=p.endsWith("/"); const e="/"+p.split("/").filter(Boolean).map(encodeURIComponent).join("/"); return tr?e+"/":e; }
+function authHeader(){ return "Basic " + btoa(conn.login + ":" + conn.password); }
+async function dav(method, path, opts){
+  opts = opts || {};
+  const base = conn.workerUrl.replace(/\/+$/, "");
+  const headers = { "Authorization": authHeader(), "X-Proxy-Secret": conn.secret };
+  if(opts.depth != null) headers["Depth"] = String(opts.depth);
+  if(opts.body != null) headers["Content-Type"] = opts.contentType || "application/xml";
+  return fetch(base + encodePath(path), { method, headers, body: opts.body });
+}
+async function getText(path){ const r=await dav("GET",path); if(!r.ok) throw new Error("HTTP "+r.status); return r.text(); }
+async function putText(path, text){ const r=await dav("PUT", path, {body:text, contentType:"text/markdown; charset=utf-8"}); if(!r.ok) throw new Error("HTTP "+r.status); }
+function norm(p){ return "/" + p.split("/").filter(Boolean).join("/"); }
+async function listDir(path){
+  const dir = path.endsWith("/")?path:path+"/";
+  const res = await dav("PROPFIND", dir, { body: PROPFIND_BODY, depth: 1 });
+  if(!res.ok) throw new Error("HTTP " + res.status);
+  const xml = new DOMParser().parseFromString(await res.text(), "application/xml");
+  const ns="DAV:", reqNorm=norm(path), out=[];
+  for(const r of xml.getElementsByTagNameNS(ns,"response")){
+    const hEl=r.getElementsByTagNameNS(ns,"href")[0];
+    const href=decodeURIComponent(hEl?hEl.textContent:"");
+    if(norm(href)===reqNorm) continue;
+    const isDir=!!r.getElementsByTagNameNS(ns,"collection")[0];
+    const sEl=r.getElementsByTagNameNS(ns,"getcontentlength")[0];
+    out.push({ path:norm(href), name:norm(href).split("/").pop(), isDir, size:sEl?+sEl.textContent:null });
+  }
+  out.sort((a,b)=> (a.isDir!==b.isDir)?(a.isDir?-1:1):a.name.localeCompare(b.name,'ru'));
+  return out;
+}
+
+// ——— конфиг / frontmatter ———
+function parseFrontmatter(md){ const m=md.match(/^---\s*\n([\s\S]*?)\n---/); return m?(jsyaml.load(m[1])||{}):null; }
+function bodyOf(md){ const m=md.match(/^---\s*\n[\s\S]*?\n---\s*\n?([\s\S]*)$/); return m?m[1]:md; }
+async function loadConfig(){
+  const data = parseFrontmatter(await getText(CONFIG_PATH));
+  if(!data) throw new Error("нет frontmatter в config.md");
+  return (Array.isArray(data.modules)?data.modules:[]).filter(m=>m&&m.enabled!==false).sort((a,b)=>(a.order||0)-(b.order||0));
+}
+
+// ——— утилиты ———
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function el(h){ const t=document.createElement("template"); t.innerHTML=h.trim(); return t.content.firstChild; }
+function fmtSize(n){ if(n==null)return""; if(n<1024)return n+" B"; if(n<1048576)return (n/1024).toFixed(1)+" KB"; return (n/1048576).toFixed(1)+" MB"; }
+function setCount(v){ const c=document.getElementById("secCount"); if(c) c.textContent=v||""; }
+function showConfirm(msg, okText){
+  return new Promise(res=>{
+    const ov = el(`<div class="modal-ov"><div class="modal">
+      <div class="modal-msg">${esc(msg)}</div>
+      <div class="modal-btns">
+        <button class="btn ghost" id="mc_no">Отмена</button>
+        <button class="btn" id="mc_yes">${esc(okText||"Удалить")}</button>
+      </div></div></div>`);
+    document.body.appendChild(ov);
+    const done = v => { ov.remove(); document.removeEventListener("keydown", onKey); res(v); };
+    function onKey(e){ if(e.key==="Escape") done(false); if(e.key==="Enter") done(true); }
+    document.addEventListener("keydown", onKey);
+    ov.querySelector("#mc_yes").onclick = ()=>done(true);
+    ov.querySelector("#mc_no").onclick = ()=>done(false);
+    ov.onclick = e => { if(e.target===ov) done(false); };
+    ov.querySelector("#mc_yes").focus();
+  });
+}
+
+// ——— рендереры по kind ———
+function parseVocabTable(md){
+  const lines = md.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.startsWith("|"));
+  if(lines.length<2) return [];
+  const cells = l => l.replace(/^\|/,"").replace(/\|$/,"").split("|").map(c=>c.trim().replace(/\\\|/g,"|"));
+  const header = cells(lines[0]).map(h=>h.toLowerCase());
+  const ix = n => header.indexOf(n);
+  const iW=ix("word"), iT=ix("translation"), iM=ix("mastered"), iE=ix("example"), iN=ix("note");
+  const out=[];
+  for(let i=1;i<lines.length;i++){
+    if(/^[|\s:\-]+$/.test(lines[i])) continue;            // строка-разделитель
+    const c = cells(lines[i]);
+    const en = (iW>=0?c[iW]:c[0]) || "";
+    if(!en) continue;
+    const mv = (iM>=0?(c[iM]||""):"").toLowerCase();
+    out.push({ en, ru:iT>=0?(c[iT]||""):"", mastered:/^(yes|x|true|1|✓)$/.test(mv),
+      example:iE>=0?(c[iE]||""):"", note:iN>=0?(c[iN]||""):"" });
+  }
+  return out;
+}
+
+function serializeVocab(words){
+  const c = s => (s||"").replace(/\r?\n/g," ").replace(/\|/g,"\\|").trim();
+  let out = "| Word | Translation | Mastered | Example | Note |\n|---|---|---|---|---|\n";
+  for(const w of words) out += `| ${c(w.en)} | ${c(w.ru)} | ${w.mastered?"yes":"no"} | ${c(w.example)} | ${c(w.note)} |\n`;
+  return out;
+}
+
+async function renderVocabulary(filePath, host){
+  let md;
+  try{ md = await getText(filePath); }
+  catch(e){
+    const code=(String(e.message).match(/HTTP (\d+)/)||[])[1];
+    if(code==="404"){ md = ""; }   // файла нет — начнём с пустого словаря, создадим при первом добавлении
+    else { host.innerHTML = `<div class="note err">Ошибка: ${esc(e.message)}</div>`; return; }
+  }
+  const words = parseVocabTable(bodyOf(md));   // порядок файла сохраняем
+  let saving = false, query = "";
+
+  host.innerHTML = `
+    <div class="vtoolbar">
+      <input id="vSearch" class="search" type="search" placeholder="поиск слова или перевода…" autocomplete="off">
+      <button class="addbtn" id="vAdd" title="Добавить слово">+</button>
+    </div>
+    <div id="vForm"></div>
+    <div id="vCards"></div>`;
+  const box = host.querySelector("#vCards");
+  const formHost = host.querySelector("#vForm");
+
+  function refreshCount(){ setCount(words.filter(w=>!w.mastered).length + " to master"); }
+
+  async function save(){
+    saving = true;
+    try{ await putText(filePath, serializeVocab(words)); }
+    catch(e){ alert("Не удалось сохранить: " + e.message); throw e; }
+    finally{ saving = false; }
+  }
+
+  async function onDelete(w){
+    if(saving) return;
+    if(!(await showConfirm(`Удалить «${w.en}» из словаря?`))) return;
+    const i = words.indexOf(w);
+    if(i<0) return;
+    words.splice(i,1);
+    try{ await save(); refreshCount(); draw(); }
+    catch(e){ words.splice(i,0,w); draw(); }   // откат при ошибке записи
+  }
+
+  function draw(){
+    const q = query.trim().toLowerCase();
+    const view = q ? words.filter(w => (w.en+" "+w.ru+" "+w.note+" "+w.example).toLowerCase().includes(q)) : words.slice();
+    view.sort((a,b)=> (a.mastered!==b.mastered)?(a.mastered?1:-1):a.en.localeCompare(b.en,'en'));
+    box.innerHTML = "";
+    if(!view.length){ box.innerHTML = `<div class="empty">${words.length? "Ничего не найдено." : "Словарь пуст — добавь первое слово кнопкой +"}</div>`; return; }
+    const wrap = document.createElement("div"); wrap.className = "cards";
+    for(const w of view){
+      const card = el(`<div class="card">
+        <div class="card-top">
+          <span class="word">${esc(w.en)}</span>
+          <span class="card-right">
+            <span class="tag ${w.mastered?"mastered":"learning"}">[${w.mastered?"MASTERED":"LEARNING"}]</span>
+            <button class="del" title="Удалить">×</button>
+          </span>
+        </div>
+        ${w.ru?`<div class="tr">${esc(w.ru)}</div>`:""}
+        ${w.example?`<div class="ex"><span class="gt">&gt;</span>${esc(w.example)}</div>`:""}
+        ${w.note?`<div class="note-line">${esc(w.note)}</div>`:""}
+      </div>`);
+      card.querySelector(".del").onclick = ()=>onDelete(w);
+      wrap.appendChild(card);
+    }
+    box.appendChild(wrap);
+  }
+
+  function openForm(){
+    formHost.innerHTML = `
+      <div class="addform">
+        <div class="grow">
+          <div class="field"><label>Слово / фраза</label><input id="a_en" autocomplete="off"></div>
+          <div class="field"><label>Перевод</label><input id="a_ru" autocomplete="off"></div>
+        </div>
+        <div class="field"><label>Пример (необязательно)</label><input id="a_ex" autocomplete="off"></div>
+        <div class="field"><label>Заметка (необязательно)</label><input id="a_note" autocomplete="off"></div>
+        <label class="chk"><input type="checkbox" id="a_m"> уже выучено</label>
+        <div class="formbtns">
+          <button class="btn" id="a_save">Добавить</button>
+          <button class="btn ghost" id="a_cancel">Отмена</button>
+        </div>
+      </div>`;
+    const enInp = formHost.querySelector("#a_en"); enInp.focus();
+    formHost.querySelector("#a_cancel").onclick = ()=>{ formHost.innerHTML=""; };
+    formHost.querySelector("#a_save").onclick = async ()=>{
+      const en = enInp.value.trim(), ru = formHost.querySelector("#a_ru").value.trim();
+      if(!en){ enInp.focus(); return; }
+      if(words.some(w=>w.en.toLowerCase()===en.toLowerCase())){ alert("Такое слово уже есть в словаре."); return; }
+      const w = { en, ru, mastered: formHost.querySelector("#a_m").checked,
+        example: formHost.querySelector("#a_ex").value.trim(), note: formHost.querySelector("#a_note").value.trim() };
+      const btn = formHost.querySelector("#a_save"); btn.disabled = true; btn.textContent = "Сохраняю…";
+      words.push(w);
+      try{ await save(); formHost.innerHTML=""; query=""; host.querySelector("#vSearch").value=""; refreshCount(); draw(); }
+      catch(e){ words.pop(); btn.disabled=false; btn.textContent="Добавить"; }
+    };
+  }
+
+  host.querySelector("#vSearch").addEventListener("input", e=>{ query = e.target.value; draw(); });
+  host.querySelector("#vAdd").onclick = openForm;
+  refreshCount();
+  draw();
+}
+
+async function renderChecklist(m, host){
+  const files = (await listDir(m.path)).filter(x=>!x.isDir && x.name.toLowerCase().endsWith(".md"));
+  if(!files.length){ host.innerHTML=`<div class="empty">Чеклист пуст.<br>Добавь <b>.md</b>-файл со строками <b>- [ ]</b> / <b>- [x]</b>.</div>`; return; }
+  const file = files.find(x=>x.name.toLowerCase()===m.id+".md") || files[0];
+  const md = bodyOf(await getText(file.path));
+  const lines = [...md.matchAll(/^\s*[-*]\s*\[([ xX])\]\s+(.*)$/gm)].map(mm=>({done:/x/i.test(mm[1]), text:mm[2].trim()}));
+  if(!lines.length){ host.innerHTML=`<div class="empty">В файле нет пунктов <b>- [ ]</b> / <b>- [x]</b>.</div>`; return; }
+  const done=lines.filter(l=>l.done).length, total=lines.length, pct=Math.round(done/total*100);
+  setCount(done+" / "+total);
+  const SEG=24, on=Math.round(pct/100*SEG);
+  let bar=`<div class="segbar">`; for(let i=0;i<SEG;i++) bar+=`<div class="seg ${i<on?"on":""}"></div>`; bar+=`</div>`;
+  let list=`<div class="checklist">`;
+  for(const l of lines) list+=`<div class="citem ${l.done?"done":"todo"}"><span class="cbox ${l.done?"done":"todo"}">[${l.done?"x":" "}]</span><span class="ctext">${esc(l.text)}</span></div>`;
+  host.innerHTML=`<div class="progress-label">Learning path · <b>${pct}%</b></div>${bar}${list}</div>`;
+}
+
+async function renderFallback(m, host){
+  const items = await listDir(m.path);
+  setCount(items.filter(x=>!x.isDir).length+" files");
+  let h=`<div class="kindnote">// рендерер для kind «${esc(m.kind||"—")}» появится на этапе трекеров — пока файлы</div>`;
+  if(!items.length) h+=`<div class="empty">Папка пуста.</div>`;
+  else{ h+=`<div class="filelist">`;
+    for(const it of items) h+=`<div class="frow"><span class="fn">${it.isDir?"▸ ":""}${esc(it.name)}</span><span class="fm">${it.isDir?"dir":fmtSize(it.size)}</span></div>`;
+    h+=`</div>`; }
+  host.innerHTML=h;
+}
+
+// ——— экраны ———
+const root = document.getElementById("root");
+
+function viewApp(){
+  root.innerHTML="";
+  const wrap = el(`<div class="wrap"></div>`);
+  wrap.appendChild(el(`<header class="app">
+    <div><div class="brand">growth<span class="dot">.</span></div><div class="brand-sub">${modules.length} directions</div></div>
+    <div class="head-actions"><button class="hbtn" id="themeBtn">${curTheme()==="dark"?"LIGHT":"DARK"}</button><button class="hbtn" id="setBtn">Settings</button></div>
+  </header>`));
+  wrap.appendChild(el(`<hr class="rule">`));
+
+  const tabs = el(`<div class="tabs"></div>`);
+  modules.forEach((m,i)=>{
+    const t=el(`<button class="tab ${m.id===activeId?"active":""}" style="animation-delay:${i*45}ms"><span class="ti">${esc(m.icon||"•")}</span>${esc(m.title||m.id)}</button>`);
+    t.onclick=()=>{ activeId=m.id; activeArtifact=null; viewApp(); };
+    tabs.appendChild(t);
+  });
+  wrap.appendChild(tabs);
+
+  const m = modules.find(x=>x.id===activeId) || modules[0];
+  wrap.appendChild(el(`<div class="sec"><div class="sec-l"><span class="sec-ico">${esc(m?m.icon:"")}</span><h2>${esc(m?(m.title||m.id):"")}</h2></div><span class="sec-count" id="secCount"></span></div>`));
+  wrap.appendChild(el(`<hr class="rule-thin">`));
+  const host = el(`<div id="content"><div class="loading"><div class="spin"></div> reading…</div></div>`);
+  wrap.appendChild(host);
+  root.appendChild(wrap);
+
+  document.getElementById("themeBtn").onclick = toggleTheme;
+  document.getElementById("setBtn").onclick = ()=>{ if(confirm("Изменить подключение?")) viewSetup(conn); };
+
+  if(!m){ host.innerHTML=`<div class="empty">Нет включённых направлений в config.md</div>`; return; }
+  renderModule(m, host);
+}
+
+function moduleArtifacts(m){
+  if(Array.isArray(m.artifacts) && m.artifacts.length) return m.artifacts;
+  return [{ id:m.id, title:m.title||m.id, kind:m.kind, file:m.file, path:m.path }];  // одиночный артефакт = сам модуль
+}
+function artifactPath(m, a){
+  const base = m.path || "";
+  if(a.file) return base ? base + "/" + a.file : a.file;
+  return a.path || base;
+}
+
+async function renderArtifact(m, a, host){
+  const fp = artifactPath(m, a);
+  if(!fp){ host.innerHTML=`<div class="note err">У артефакта не задан file/path в config.md</div>`; return; }
+  try{
+    if(a.kind==="vocabulary")      await renderVocabulary(fp, host);
+    else if(a.kind==="doc")        await renderDoc(fp, host);
+    else if(a.kind==="notes")      await renderNotes(fp, host);
+    else if(a.kind==="checklist")  await renderChecklist({path:fp, id:m.id}, host);
+    else                           await renderFallback({path:fp, kind:a.kind, id:m.id}, host);
+  }catch(e){
+    const code=(String(e.message).match(/HTTP (\d+)/)||[])[1];
+    host.innerHTML=`<div class="note err">${code==="404"?"Не найдено в vault — проверь путь (регистр и пробелы важны).":"Ошибка: "+esc(e.message)}</div>`;
+  }
+}
+
+async function renderDoc(filePath, host){
+  setCount("");
+  let md;
+  try{ md = await getText(filePath); }
+  catch(e){
+    const code=(String(e.message).match(/HTTP (\d+)/)||[])[1];
+    host.innerHTML = code==="404"
+      ? `<div class="empty">Файла нет: <b>${esc(filePath.split("/").pop())}</b></div>`
+      : `<div class="note err">Ошибка: ${esc(e.message)}</div>`;
+    return;
+  }
+  const wrap = el(`<div class="doc"></div>`);
+  wrap.innerHTML = window.marked ? marked.parse(bodyOf(md)) : esc(bodyOf(md));
+  // якоря оглавления: проставляем заголовкам id по GitHub-слагу и скроллим по клику
+  const seen = {};
+  wrap.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h=>{
+    let slug = slugify(h.textContent);
+    if(seen[slug]!=null){ seen[slug]++; slug = slug + "-" + seen[slug]; } else seen[slug]=0;
+    if(!h.id) h.id = slug;
+  });
+  wrap.addEventListener("click", e=>{
+    const a = e.target.closest('a[href^="#"]'); if(!a) return;
+    const id = decodeURIComponent(a.getAttribute("href").slice(1));
+    let t=null; try{ t = wrap.querySelector("#"+CSS.escape(id)); }catch(_){}
+    if(!t) t = wrap.querySelector('[id="'+id.replace(/"/g,'\\"')+'"]');
+    if(t){ e.preventDefault(); t.scrollIntoView({behavior:"smooth", block:"start"}); }
+  });
+  host.innerHTML = "";
+  host.appendChild(wrap);
+}
+
+function slugify(text){
+  return (text||"").trim().toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu,"")   // убрать пунктуацию/эмодзи, оставить буквы (вкл. кириллицу), цифры, пробелы, дефис
+    .replace(/\s/g,"-");                // каждый пробел → дефис (не схлопываем — двойные сохраняем как в оглавлении)
+}
+
+function parseNotes(md){
+  const chunks = md.split(/^##\s+/m);          // [0] = преамбула, дальше блоки заметок
+  return chunks.slice(1).map(p=>{
+    const nl = p.indexOf("\n");
+    return nl<0 ? {date:p.trim(), text:""} : {date:p.slice(0,nl).trim(), text:p.slice(nl+1).trim()};
+  });
+}
+function serializeNotes(notes){
+  let out = "# English — backlog заметок\n\n> Идеи и мысли по развитию раздела English. Claude анализирует этот файл и предлагает улучшения. Новые заметки сверху.\n\n";
+  for(const n of notes) out += `## ${n.date}\n\n${n.text}\n\n`;
+  return out;
+}
+function nowStamp(){ const d=new Date(); const p=x=>String(x).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+
+async function renderNotes(filePath, host){
+  let md = "";
+  try{ md = await getText(filePath); }
+  catch(e){ const code=(String(e.message).match(/HTTP (\d+)/)||[])[1]; if(code!=="404"){ host.innerHTML=`<div class="note err">Ошибка: ${esc(e.message)}</div>`; return; } }
+  const notes = parseNotes(md);   // новые сверху (как в файле)
+  setCount(notes.length + (notes.length===1?" note":" notes"));
+
+  host.innerHTML = `
+    <div class="compose">
+      <textarea id="nText" placeholder="идея по развитию English… (что улучшить, что добавить, что попробовать)"></textarea>
+      <div class="formbtns"><button class="btn" id="nAdd">Добавить заметку</button></div>
+    </div>
+    <div id="nList"></div>`;
+  const list = host.querySelector("#nList");
+  const ta = host.querySelector("#nText");
+
+  async function save(){ await putText(filePath, serializeNotes(notes)); }
+
+  function draw(){
+    list.innerHTML = "";
+    if(!notes.length){ list.innerHTML = `<div class="empty">Пока пусто — запиши первую мысль выше.</div>`; return; }
+    for(const n of notes){
+      const card = el(`<div class="ncard">
+        <div class="ncard-top"><span class="ndate">${esc(n.date)}</span><button class="del" title="Удалить">×</button></div>
+        <div class="ntext">${esc(n.text)}</div></div>`);
+      card.querySelector(".del").onclick = async ()=>{
+        if(!(await showConfirm("Удалить эту заметку?"))) return;
+        const i = notes.indexOf(n); if(i<0) return;
+        notes.splice(i,1);
+        try{ await save(); setCount(notes.length+(notes.length===1?" note":" notes")); draw(); }
+        catch(e){ notes.splice(i,0,n); alert("Не удалось сохранить: "+e.message); draw(); }
+      };
+      list.appendChild(card);
+    }
+  }
+
+  host.querySelector("#nAdd").onclick = async ()=>{
+    const text = ta.value.trim(); if(!text) { ta.focus(); return; }
+    const btn = host.querySelector("#nAdd"); btn.disabled=true; btn.textContent="Сохраняю…";
+    const note = { date: nowStamp(), text };
+    notes.unshift(note);
+    try{ await save(); ta.value=""; setCount(notes.length+(notes.length===1?" note":" notes")); draw(); }
+    catch(e){ notes.shift(); alert("Не удалось сохранить: "+e.message); }
+    finally{ btn.disabled=false; btn.textContent="Добавить заметку"; }
+  };
+  draw();
+}
+
+async function renderModule(m, host){
+  const arts = moduleArtifacts(m);
+  let a = arts.find(x=>x.id===activeArtifact) || arts[0];
+  activeArtifact = a.id;
+
+  host.innerHTML = "";
+  if(arts.length > 1){
+    const st = el(`<div class="subtabs"></div>`);
+    arts.forEach(x=>{
+      const b = el(`<button class="subtab ${x.id===a.id?"active":""}">${esc(x.title||x.id)}</button>`);
+      b.onclick = ()=>{ activeArtifact = x.id; renderModule(m, host); };
+      st.appendChild(b);
+    });
+    host.appendChild(st);
+  }
+  const content = el(`<div id="artContent"><div class="loading"><div class="spin"></div> reading…</div></div>`);
+  host.appendChild(content);
+  renderArtifact(m, a, content);
+}
+
+const DEFAULTS = {
+  workerUrl: "https://growth-dav.vans-bleat.workers.dev",
+  secret: "growth-7x9k2",
+  login: "vans.bleat@mail.ru"
+};
+function viewSetup(prefill){
+  prefill = prefill || conn || {};
+  root.innerHTML="";
+  const c = el(`<div class="center setup">
+    <div class="brand">growth<span class="dot">.</span></div>
+    <div class="lead">Введи пароль приложения Mail.ru, чтобы войти.</div>
+    <div class="field"><label>Пароль приложения</label><input id="f_pass" type="password" placeholder="пароль для внешнего приложения" value="${esc(prefill.password||"")}">
+      <div class="hint">Не пароль от почты. Хранится только на этом устройстве.</div></div>
+    <button class="btn" id="f_go">Войти</button>
+    <div class="formerr" id="f_err"></div>
+  </div>`);
+  root.appendChild(c);
+  const go=c.querySelector("#f_go");
+  go.onclick = async ()=>{
+    const cand={
+      workerUrl: prefill.workerUrl || DEFAULTS.workerUrl,
+      secret:    prefill.secret    || DEFAULTS.secret,
+      login:     prefill.login     || DEFAULTS.login,
+      password:  c.querySelector("#f_pass").value
+    };
+    if(!cand.password){ c.querySelector("#f_err").textContent="Введи пароль."; return; }
+    go.disabled=true; go.textContent="Проверяю…"; conn=cand;
+    try{ modules=await loadConfig(); saveConn(cand); activeId=modules.length?modules[0].id:null; viewApp(); }
+    catch(e){ conn=null; go.disabled=false; go.textContent="Войти"; c.querySelector("#f_err").textContent="Не вышло: "+e.message; }
+  };
+  const pass=c.querySelector("#f_pass");
+  pass.addEventListener("keydown", e=>{ if(e.key==="Enter") go.click(); });
+  pass.focus();
+}
+
+async function boot(){
+  conn = loadConn();
+  if(!conn){ viewSetup(); return; }
+  root.innerHTML=`<div class="center"><div class="loading"><div class="spin"></div> loading config…</div></div>`;
+  try{ modules=await loadConfig(); activeId=modules.length?modules[0].id:null; viewApp(); }
+  catch(e){ viewSetup(conn); }
+}
+boot();
+</script>
+</body>
+</html>
