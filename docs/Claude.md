@@ -28,6 +28,7 @@
 - **Хранилище (источник истины):** Markdown-файлы на **Mail.ru WebDAV** (`https://webdav.cloud.mail.ru`) — это облако пользователя.
 - **Мост:** **Cloudflare Worker** `growth-dav` (`https://growth-dav.vans-bleat.workers.dev`) — CORS-прокси перед Mail.ru. Защищён заголовком `X-Proxy-Secret`. Бизнес-логики не содержит.
 - **Авторизация:** пароль приложения Mail.ru (Basic auth), вводится в аппе и хранится локально на устройстве. URL воркера, секрет и логин зашиты константами в коде аппа.
+- **PWA:** `app/` содержит `manifest.json`, сервис-воркер `sw.js` (кэш-шелл, офлайн, навигация network-first для доезда обновлений), иконки (`icon-192/512.png`, `apple-touch-icon.png`). Шрифты (Hanken Grotesk, JetBrains Mono — вариативные woff2 в `app/fonts/`) и библиотеки (`js-yaml`, `marked` в `app/vendor/`) **вшиты локально** — внешних CDN нет, апп работает офлайн и ставится на iPhone как полноценное приложение.
 
 ## Репозиторий, деплой и хендоф
 
