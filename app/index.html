@@ -225,6 +225,16 @@
   .totop.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
   .totop:hover{background:var(--ink);color:var(--bg)}
 
+  /* pull-to-refresh (мобильный жест) */
+  .ptr{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-100%);z-index:1100;
+    width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+    background:var(--card);border:1.5px solid var(--line);border-radius:50%;box-shadow:0 3px 12px rgba(0,0,0,.28)}
+  .ptr-i{width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%}
+  .ptr.ready{border-color:var(--accent)}
+  .ptr.ready .ptr-i{border-color:var(--accent)}
+  .ptr.spin-on .ptr-i{animation:ptrspin .7s linear infinite}
+  @keyframes ptrspin{to{transform:rotate(360deg)}}
+
   /* ——— Tasks ——— */
   .tk-create{width:100%;margin:0 0 16px}
   .tk-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
@@ -291,6 +301,7 @@
 <body>
 <div id="root"></div>
 <button id="toTop" class="totop" aria-label="Наверх"><span class="ar">↑</span>top</button>
+<div id="ptr" class="ptr" aria-hidden="true"><div class="ptr-i"></div></div>
 <script>
 "use strict";
 
@@ -1374,6 +1385,14 @@ async function boot(){
   try{ modules=await loadConfig(); activeId=modules.length?modules[0].id:null; viewApp(); }
   catch(e){ viewSetup(conn); }
 }
+
+// перечитать текущий раздел с WebDAV (для pull-to-refresh)
+async function appRefresh(){
+  if(!conn) return;
+  const m = modules.find(x=>x.id===activeId);
+  const host = document.getElementById("content");
+  if(m && host) await renderModule(m, host);
+}
 // кнопка «наверх»: видна, когда страница прокручена не от самого верха
 (function(){
   const btn = document.getElementById("toTop");
@@ -1384,6 +1403,49 @@ async function boot(){
   window.addEventListener("resize", upd, {passive:true});
   btn.addEventListener("click", ()=> window.scrollTo({top:0, behavior:"smooth"}));
   upd();
+})();
+
+// pull-to-refresh: тянем вниз от самого верха → отпускаем за порогом → appRefresh()
+(function(){
+  const ind = document.getElementById("ptr"); if(!ind) return;
+  const TRIG = 70, MAX = 110, DAMP = 0.5;
+  let startY = 0, pulling = false, dist = 0, refreshing = false;
+  const scrollTop = ()=> window.scrollY || document.documentElement.scrollTop || 0;
+  const canPTR = ()=> !!conn && !refreshing && !!document.getElementById("content");
+
+  window.addEventListener("touchstart", e=>{
+    if(!canPTR() || e.touches.length!==1 || scrollTop()>0){ pulling=false; return; }
+    startY = e.touches[0].clientY; pulling = true; dist = 0;
+    ind.style.transition = "none";
+  }, {passive:true});
+
+  window.addEventListener("touchmove", e=>{
+    if(!pulling) return;
+    const dy = e.touches[0].clientY - startY;
+    if(dy<=0 || scrollTop()>0){ pulling=false; dist=0; ind.style.transform="translateX(-50%) translateY(-100%)"; return; }
+    dist = Math.min(MAX, dy*DAMP);
+    if(e.cancelable) e.preventDefault();   // гасим нативный скролл/баунс, пока тянем
+    ind.style.transform = `translateX(-50%) translateY(${dist}px)`;
+    ind.classList.toggle("ready", dist>=TRIG);
+  }, {passive:false});
+
+  async function release(){
+    if(!pulling) return; pulling=false;
+    ind.style.transition = "transform .2s ease";
+    if(dist>=TRIG && canPTR()){
+      refreshing = true;
+      ind.classList.remove("ready"); ind.classList.add("spin-on");
+      ind.style.transform = "translateX(-50%) translateY(58px)";
+      try{ await appRefresh(); }catch(e){}
+      finally{ refreshing=false; ind.classList.remove("spin-on"); ind.style.transform="translateX(-50%) translateY(-100%)"; }
+    } else {
+      ind.classList.remove("ready");
+      ind.style.transform = "translateX(-50%) translateY(-100%)";
+    }
+    dist = 0;
+  }
+  window.addEventListener("touchend", release, {passive:true});
+  window.addEventListener("touchcancel", release, {passive:true});
 })();
 
 boot();
