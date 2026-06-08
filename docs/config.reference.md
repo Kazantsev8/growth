@@ -79,7 +79,7 @@ modules:
 kind и файл/папка. Если artifacts не заданы, направление = один артефакт (kind+path).
 
 kind артефактов:
-- vocabulary — словарь (Markdown-таблица word/translation/mastered/example/note)
+- vocabulary — словарь (Markdown-таблица word/translation/mastered/example/note/added)
 - doc        — markdown-документ (рендерится как есть: заголовки, таблицы, списки)
 - checklist  — список - [ ] / - [x]
 - tasks      — таск-трекер (active/archived, файл на задачу, типы simple/checklist/steps)

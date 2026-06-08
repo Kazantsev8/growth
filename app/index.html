@@ -88,6 +88,12 @@
   .vtoolbar .search{flex:1}
   .addbtn{flex:0 0 auto;background:var(--accent);color:var(--on-accent);border:1.5px solid var(--accent);padding:0 16px;font-family:var(--mono);font-size:18px;font-weight:700;cursor:pointer;line-height:1;transition:.15s}
   .addbtn:hover{filter:brightness(1.05)}
+  .vsort{display:flex;gap:8px;align-items:center;margin-bottom:16px}
+  .vsort .lbl{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+  .vsort select{flex:1;background:var(--card);border:1.5px solid var(--line);color:var(--ink);padding:10px 12px;font-family:var(--mono);font-size:12px;cursor:pointer;-webkit-appearance:none}
+  .vsort select:focus{outline:none;border-color:var(--accent)}
+  .vsort .dirbtn{flex:0 0 auto;background:transparent;border:1.5px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:14px;padding:0 14px;cursor:pointer;transition:.15s}
+  .vsort .dirbtn:hover{background:var(--ink);color:var(--bg)}
   .addform{border:1.5px solid var(--line);background:var(--card);padding:16px;margin-bottom:18px;animation:fade .2s ease both}
   .addform .field{margin-bottom:12px}
   .addform .grow{display:flex;gap:8px}
@@ -425,7 +431,7 @@ function parseVocabTable(md){
   const cells = l => l.replace(/^\|/,"").replace(/\|$/,"").split("|").map(c=>c.trim().replace(/\\\|/g,"|"));
   const header = cells(lines[0]).map(h=>h.toLowerCase());
   const ix = n => header.indexOf(n);
-  const iW=ix("word"), iT=ix("translation"), iM=ix("mastered"), iE=ix("example"), iN=ix("note");
+  const iW=ix("word"), iT=ix("translation"), iM=ix("mastered"), iE=ix("example"), iN=ix("note"), iA=ix("added");
   const out=[];
   for(let i=1;i<lines.length;i++){
     if(/^[|\s:\-]+$/.test(lines[i])) continue;            // строка-разделитель
@@ -434,15 +440,15 @@ function parseVocabTable(md){
     if(!en) continue;
     const mv = (iM>=0?(c[iM]||""):"").toLowerCase();
     out.push({ en, ru:iT>=0?(c[iT]||""):"", mastered:/^(yes|x|true|1|✓)$/.test(mv),
-      example:iE>=0?(c[iE]||""):"", note:iN>=0?(c[iN]||""):"" });
+      example:iE>=0?(c[iE]||""):"", note:iN>=0?(c[iN]||""):"", added:iA>=0?(c[iA]||""):"" });
   }
   return out;
 }
 
 function serializeVocab(words){
   const c = s => (s||"").replace(/\r?\n/g," ").replace(/\|/g,"\\|").trim();
-  let out = "| Word | Translation | Mastered | Example | Note |\n|---|---|---|---|---|\n";
-  for(const w of words) out += `| ${c(w.en)} | ${c(w.ru)} | ${w.mastered?"yes":"no"} | ${c(w.example)} | ${c(w.note)} |\n`;
+  let out = "| Word | Translation | Mastered | Example | Note | Added |\n|---|---|---|---|---|---|\n";
+  for(const w of words) out += `| ${c(w.en)} | ${c(w.ru)} | ${w.mastered?"yes":"no"} | ${c(w.example)} | ${c(w.note)} | ${c(w.added)} |\n`;
   return out;
 }
 
@@ -455,12 +461,20 @@ async function renderVocabulary(filePath, host){
     else { host.innerHTML = `<div class="note err">Ошибка: ${esc(e.message)}</div>`; return; }
   }
   const words = parseVocabTable(bodyOf(md));   // порядок файла сохраняем
-  let saving = false, query = "";
+  let saving = false, query = "", sortBy = "alpha", sortDir = "asc";
 
   host.innerHTML = `
     <div class="vtoolbar">
       <input id="vSearch" class="search" type="search" placeholder="поиск слова или перевода…" autocomplete="off">
       <button class="addbtn" id="vAdd" title="Добавить слово">+</button>
+    </div>
+    <div class="vsort">
+      <span class="lbl">сорт</span>
+      <select id="vSort">
+        <option value="alpha">по алфавиту</option>
+        <option value="added">по дате добавления</option>
+      </select>
+      <button class="dirbtn" id="vDir" title="Направление">↑</button>
     </div>
     <div id="vForm"></div>
     <div id="vCards"></div>`;
@@ -489,7 +503,14 @@ async function renderVocabulary(filePath, host){
   function draw(){
     const q = query.trim().toLowerCase();
     const view = q ? words.filter(w => (w.en+" "+w.ru+" "+w.note+" "+w.example).toLowerCase().includes(q)) : words.slice();
-    view.sort((a,b)=> (a.mastered!==b.mastered)?(a.mastered?1:-1):a.en.localeCompare(b.en,'en'));
+    const dir = sortDir==="asc" ? 1 : -1;
+    view.sort((a,b)=>{
+      let c;
+      if(sortBy==="added") c = String(a.added||"").localeCompare(String(b.added||""));   // пустые даты — в начале (asc) / в конце (desc)
+      else                 c = a.en.localeCompare(b.en,'en');
+      if(c===0) c = a.en.localeCompare(b.en,'en');                                        // вторичный ключ — слово
+      return dir*c;
+    });
     box.innerHTML = "";
     if(!view.length){ box.innerHTML = `<div class="empty">${words.length? "Ничего не найдено." : "Словарь пуст — добавь первое слово кнопкой +"}</div>`; return; }
     const wrap = document.createElement("div"); wrap.className = "cards";
@@ -534,7 +555,7 @@ async function renderVocabulary(filePath, host){
       if(!en){ enInp.focus(); return; }
       if(words.some(w=>w.en.toLowerCase()===en.toLowerCase())){ alert("Такое слово уже есть в словаре."); return; }
       const w = { en, ru, mastered: formHost.querySelector("#a_m").checked,
-        example: formHost.querySelector("#a_ex").value.trim(), note: formHost.querySelector("#a_note").value.trim() };
+        example: formHost.querySelector("#a_ex").value.trim(), note: formHost.querySelector("#a_note").value.trim(), added: tkStamp() };
       const btn = formHost.querySelector("#a_save"); btn.disabled = true; btn.textContent = "Сохраняю…";
       words.push(w);
       try{ await save(); formHost.innerHTML=""; query=""; host.querySelector("#vSearch").value=""; refreshCount(); draw(); }
@@ -544,6 +565,8 @@ async function renderVocabulary(filePath, host){
 
   host.querySelector("#vSearch").addEventListener("input", e=>{ query = e.target.value; draw(); });
   host.querySelector("#vAdd").onclick = openForm;
+  host.querySelector("#vSort").addEventListener("change", e=>{ sortBy = e.target.value; draw(); });
+  host.querySelector("#vDir").onclick = (e)=>{ sortDir = sortDir==="asc"?"desc":"asc"; e.currentTarget.textContent = sortDir==="asc"?"↑":"↓"; draw(); };
   refreshCount();
   draw();
 }
