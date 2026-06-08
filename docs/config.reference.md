@@ -65,9 +65,10 @@ modules:
   - id: tasks
     title: Tasks
     icon: "📋"
+    path: "Obsidian Vault/Tasks"
+    kind: tasks
     order: 0
     enabled: true
-    # path / kind / artifacts — проектируется на следующем шаге (персональный Task Tracker)
 ---
 
 # GrowthApp
@@ -81,3 +82,4 @@ kind артефактов:
 - vocabulary — словарь (Markdown-таблица word/translation/mastered/example/note)
 - doc        — markdown-документ (рендерится как есть: заголовки, таблицы, списки)
 - checklist  — список - [ ] / - [x]
+- tasks      — таск-трекер (active/archived, файл на задачу, типы simple/checklist/steps)
