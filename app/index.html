@@ -594,6 +594,9 @@ function tkProgress(t){ const it=t.items||[]; if(!it.length) return null; const 
 function tkAttPath(t,name){ return "../Documents/"+t.name+"/"+String(name).replace(/ /g,"%20"); }
 function tkAttLine(a,t){ return (tkIsImg(a)?"- !":"- ")+"["+a.name+"]("+tkAttPath(t,a.name)+")"; }
 function tkSetStatus(t,s){ if(tkStatusOf(t)===s) return; const at=tkStamp(); if(!Array.isArray(t.history)) t.history=[]; t.history.push({status:s,at}); t.status=s; t.closed_at = (s==="done")?at:""; }
+// описание для любого типа: у simple — тело, у списочных — intro (текст до списка)
+function tkGetDesc(t){ return t.type==="simple" ? (t.description||"") : (t.intro||""); }
+function tkSetDesc(t,v){ if(t.type==="simple") t.description=v; else t.intro=v; }
 
 function tkParseAtts(text){ const out=[], re=/^\s*-\s*!?\[[^\]]*\]\(([^)]+)\)\s*$/gm; let m;
   while((m=re.exec(text))){ const fn=decodeURIComponent(m[1].split("/").pop().replace(/%20/g," ")); out.push({name:fn,type:tkGuessType(fn)}); } return out; }
@@ -783,12 +786,14 @@ async function renderTasks(base, host){
       host.appendChild(seg);
     }
 
+    // Описание — для любого типа
+    host.appendChild(el(`<div class="tk-sec">Описание</div>`));
+    const d = el(`<textarea class="tk-desc"></textarea>`); d.value = tkGetDesc(t);
+    d.addEventListener("input", ()=>{ tkSetDesc(t,d.value); schedule(t,saveEl); });
+    d.addEventListener("blur", ()=>{ flush(t).catch(()=>{}); });
+    host.appendChild(d);
+
     if(t.type==="simple"){
-      host.appendChild(el(`<div class="tk-sec">Описание</div>`));
-      const d = el(`<textarea class="tk-desc"></textarea>`); d.value=t.description||"";
-      d.addEventListener("input", ()=>{ t.description=d.value; schedule(t,saveEl); });
-      d.addEventListener("blur", ()=>{ flush(t).catch(()=>{}); });
-      host.appendChild(d);
       host.appendChild(el(`<div class="tk-sec">Файлы</div>`));
       if(!t.attachments) t.attachments=[];
       host.appendChild(attachEditor(t, t.attachments, saveEl));
@@ -916,7 +921,7 @@ async function renderTasks(base, host){
       opened_at:at, status:"todo", closed_at:"", history:[{status:"todo",at}],
       description: draft.type==="simple" ? (draft.description||"") : "", attachments:[],
       items: draft.type==="simple" ? [] : (draft.items||[]).filter(i=>i.text && i.text.trim()),
-      intro:"", outro:"", _dir:A };
+      intro: draft.type==="simple" ? "" : (draft.description||"").trim(), outro:"", _dir:A };
     await ensureDir(A);
     if(draft.type==="simple" && (draft.attachments||[]).length){
       await ensureDir(DOCS+"/"+name);
@@ -938,10 +943,10 @@ async function renderTasks(base, host){
       const seg = el(`<div class="tk-seg"></div>`);
       TK_TYPES.forEach(v=>{ const b=el(`<button class="${draft.type===v?"on":""}">${TK_TYPE_LABEL[v]}</button>`); b.onclick=()=>{ draft.type=v; drawM(); }; seg.appendChild(b); });
       modal.appendChild(seg);
+      modal.appendChild(el(`<div class="tk-sec">Описание</div>`));
+      const dd = el(`<textarea class="tk-desc" placeholder="Описание задачи…"></textarea>`); dd.value=draft.description; dd.addEventListener("input",()=>draft.description=dd.value);
+      modal.appendChild(dd);
       if(draft.type==="simple"){
-        modal.appendChild(el(`<div class="tk-sec">Описание</div>`));
-        const d=el(`<textarea class="tk-desc" placeholder="Описание задачи…"></textarea>`); d.value=draft.description; d.addEventListener("input",()=>draft.description=d.value);
-        modal.appendChild(d);
         modal.appendChild(el(`<div class="tk-sec">Файлы</div>`));
         modal.appendChild(modalAttach(draft.attachments));
       } else {
