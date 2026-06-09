@@ -919,14 +919,14 @@ async function renderTasks(base, host){
   // ——— переходы между папками ———
   async function moveClose(t){
     tkSetStatus(t,"done");
-    try{ await putText(AR+"/"+t.fileName, tkSerialize(t)); await davDelete(A+"/"+t.fileName); }
+    try{ await ensureDir(AR); await putText(AR+"/"+t.fileName, tkSerialize(t)); await davDelete(A+"/"+t.fileName); }
     catch(e){ alert("Не удалось перенести в архив: "+e.message); return; }
     t._dir=AR; active=active.filter(x=>x!==t); archived.unshift(t);
     tab="archive"; view="list"; render();
   }
   async function moveReopen(t){
     tkSetStatus(t,"todo");
-    try{ await putText(A+"/"+t.fileName, tkSerialize(t)); await davDelete(AR+"/"+t.fileName); }
+    try{ await ensureDir(A); await putText(A+"/"+t.fileName, tkSerialize(t)); await davDelete(AR+"/"+t.fileName); }
     catch(e){ alert("Не удалось вернуть в активные: "+e.message); return; }
     t._dir=A; archived=archived.filter(x=>x!==t); active.unshift(t);
     tab="active"; view="list"; render();
