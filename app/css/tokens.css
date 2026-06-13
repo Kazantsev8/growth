@@ -1,0 +1,17 @@
+  :root{
+    --grotesk:"Hanken Grotesk",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --maxw:680px;
+  }
+  /* ——— СВЕТЛАЯ: тёплая бумага ——— */
+  html[data-theme="light"]{
+    --bg:#e7e3d8; --ink:#181612; --muted:#4d473c; --faint:#8a8273;
+    --line:#181612; --line-soft:#c3bdaf; --accent:#cf3a1a; --card:#ece8dd;
+    --tab-bg:#e7e3d8; --tab-active-bg:#181612; --tab-active-fg:#e7e3d8; --on-accent:#fdf6ee;
+  }
+  /* ——— ТЁМНАЯ: фиолетово-чёрная, мягкий сиреневый ——— */
+  html[data-theme="dark"]{
+    --bg:#0c0a11; --ink:#e9e6f2; --muted:#9d96b0; --faint:#615b76;
+    --line:#2a2438; --line-soft:#221d2e; --accent:#a89cea; --card:#100d18;
+    --tab-bg:#15121e; --tab-active-bg:#a89cea; --tab-active-fg:#15101e; --on-accent:#15101e;
+  }

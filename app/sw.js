@@ -1,6 +1,6 @@
 // Growth service worker. Кэш приложения + офлайн + самообновление.
 // При изменении статики (шрифты/иконки/vendor) — поднять версию кэша.
-const CACHE = "growth-v1";
+const CACHE = "growth-v2";
 const SHELL = [
   "./", "./index.html", "./manifest.json",
   "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png",
@@ -13,7 +13,42 @@ const SHELL = [
   "./fonts/jetbrains-mono-cyrillic-wght-normal.woff2",
   "./fonts/jetbrains-mono-cyrillic-ext-wght-normal.woff2",
   "./vendor/js-yaml.min.js",
-  "./vendor/marked.min.js"
+  "./vendor/marked.min.js",
+  // CSS
+  "./css/tokens.css",
+  "./css/base.css",
+  "./css/components.css",
+  "./css/app.css",
+  "./css/kinds/vocabulary.css",
+  "./css/kinds/doc.css",
+  "./css/kinds/roadmap.css",
+  "./css/kinds/tasks.css",
+  "./css/kinds/sport.css",
+  // JS
+  "./js/main.js",
+  "./js/boot.js",
+  "./js/pwa.js",
+  "./js/app.js",
+  "./js/core/state.js",
+  "./js/core/vendor.js",
+  "./js/core/conn.js",
+  "./js/core/dav.js",
+  "./js/core/config.js",
+  "./js/core/md.js",
+  "./js/core/theme.js",
+  "./js/core/dates.js",
+  "./js/ui/dom.js",
+  "./js/ui/modal.js",
+  "./js/ui/files.js",
+  "./js/kinds/vocabulary.js",
+  "./js/kinds/doc.js",
+  "./js/kinds/notes.js",
+  "./js/kinds/checklist.js",
+  "./js/kinds/roadmap.js",
+  "./js/kinds/doclist.js",
+  "./js/kinds/fallback.js",
+  "./js/kinds/tasks.js",
+  "./js/kinds/sport.js"
 ];
 
 self.addEventListener("install", e => {
