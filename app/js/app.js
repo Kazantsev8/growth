@@ -3,15 +3,7 @@ import { DEFAULTS, saveConn } from "./core/conn.js";
 import { loadConfig } from "./core/config.js";
 import { curTheme, toggleTheme } from "./core/theme.js";
 import { el, esc } from "./ui/dom.js";
-import { renderVocabulary } from "./kinds/vocabulary.js";
-import { renderDoc } from "./kinds/doc.js";
-import { renderNotes } from "./kinds/notes.js";
-import { renderRoadmap } from "./kinds/roadmap.js";
-import { renderDocList } from "./kinds/doclist.js";
-import { renderChecklist } from "./kinds/checklist.js";
-import { renderTasks } from "./kinds/tasks.js";
-import { renderSport } from "./kinds/sport.js";
-import { renderFallback } from "./kinds/fallback.js";
+import { KINDS, loadFallback } from "./kinds/registry.js";
 
 // ——— экраны ———
 const root = document.getElementById("root");
@@ -73,15 +65,9 @@ async function renderArtifact(m, a, host){
   const fp = artifactPath(m, a);
   if(!fp){ host.innerHTML=`<div class="note err">У артефакта не задан file/path в config.md</div>`; return; }
   try{
-    if(a.kind==="vocabulary")      await renderVocabulary(fp, host);
-    else if(a.kind==="doc")        await renderDoc(fp, host);
-    else if(a.kind==="notes")      await renderNotes(fp, host);
-    else if(a.kind==="roadmap")    await renderRoadmap(fp, host);
-    else if(a.kind==="doclist")    await renderDocList(fp, host, a);
-    else if(a.kind==="checklist")  await renderChecklist({path:fp, id:m.id}, host);
-    else if(a.kind==="tasks")      await renderTasks(fp, host);
-    else if(a.kind==="sport")      await renderSport(fp, host);
-    else                           await renderFallback({path:fp, kind:a.kind, id:m.id}, host);
+    const entry = KINDS[a.kind];
+    if(entry){ const mod = await entry.load(); await entry.render(mod, {fp, host, a, m}); }
+    else { const fb = await loadFallback(); await fb.renderFallback({path:fp, kind:a.kind, id:m.id}, host); }
   }catch(e){
     const code=(String(e.message).match(/HTTP (\d+)/)||[])[1];
     host.innerHTML=`<div class="note err">${code==="404"?"Не найдено в vault — проверь путь (регистр и пробелы важны).":"Ошибка: "+esc(e.message)}</div>`;

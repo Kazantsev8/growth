@@ -1,6 +1,8 @@
 // Growth service worker. Кэш приложения + офлайн + самообновление.
-// При изменении статики (шрифты/иконки/vendor) — поднять версию кэша.
-const CACHE = "growth-v2";
+// Стратегия (ADR docs/decisions/0009): навигации/HTML и same-origin *.js/*.css — network-first
+// (свежий код при онлайне) + рантайм-кэш для офлайна; шрифты/vendor/иконки — cache-first.
+// При изменении набора файлов — поднять версию кэша.
+const CACHE = "growth-v3";
 const SHELL = [
   "./", "./index.html", "./manifest.json",
   "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png",
@@ -40,6 +42,7 @@ const SHELL = [
   "./js/ui/dom.js",
   "./js/ui/modal.js",
   "./js/ui/files.js",
+  "./js/kinds/registry.js",
   "./js/kinds/vocabulary.js",
   "./js/kinds/doc.js",
   "./js/kinds/notes.js",
@@ -73,6 +76,15 @@ self.addEventListener("fetch", e => {
     e.respondWith(
       fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return res; })
                 .catch(() => caches.match(req).then(r => r || caches.match("./index.html")))
+    );
+    return;
+  }
+
+  // код приложения (*.js / *.css, вкл. ленивые kind-модули) — network-first + рантайм-кэш
+  if (url.pathname.endsWith(".js") || url.pathname.endsWith(".css")) {
+    e.respondWith(
+      fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return res; })
+                .catch(() => caches.match(req))
     );
     return;
   }

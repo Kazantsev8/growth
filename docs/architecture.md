@@ -9,8 +9,8 @@
 
 - **Фаза 0 — каркас документации** ✅.
 - **Фаза 1 — модульная экстракция** ✅ (код вынесен в `app/js/**` и `app/css/**`, `index.html` — shell; поведение и вид сохранены; статические импорты).
-- **Фаза 2 — дизайн-система** ⏳ (унификация дублирующихся компонентов; токены отступов/радиусов).
-- **Фаза 3 — перформанс (ленивые импорты, SW)** ⏳ (kind грузятся статически; ленивый `import()` и финальная стратегия SW — впереди).
+- **Фаза 2 — дизайн-система** ✅ (консервативно: токен-слой `--bw`/`--r`/`--sp-*`, `--bw` адаптирован повсеместно; без изменения вида).
+- **Фаза 3 — перформанс** ✅ (kind грузятся лениво через `import()` из `kinds/registry.js`; SW `growth-v3`: network-first для `*.js`/`*.css` + рантайм-кэш, cache-first для шрифтов/vendor/иконок).
 - **Фаза 4 — финал доков** ⏳.
 
 Этот раздел обновляется по мере прохождения фаз (см. протокол в [Claude.md](Claude.md)).
@@ -52,8 +52,8 @@ js/
   boot.js               boot()
   pwa.js                регистрация SW + toTop + pull-to-refresh
   kinds/
+    registry.js         kind → { load: ()=>import(...), render: (mod,ctx)=>... } + loadFallback()
     vocabulary.js doc.js notes.js checklist.js roadmap.js doclist.js tasks.js sport.js fallback.js
-    (registry.js — ленивый import() + meta — появится в Фазе 3; сейчас dispatch статический в app.js)
 sw.js                   service worker (см. ниже)
 vendor/ fonts/ icons    как есть
 ```
