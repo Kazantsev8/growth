@@ -4,7 +4,7 @@
   .brand-sub{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--faint);margin-top:6px;text-transform:uppercase}
   .head-actions{display:flex;gap:8px;flex-shrink:0}
   .hbtn{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;
-    background:transparent;color:var(--ink);border:1.5px solid var(--line);padding:9px 12px;cursor:pointer;transition:.15s;white-space:nowrap}
+    background:transparent;color:var(--ink);border:var(--bw) solid var(--line);padding:9px 12px;cursor:pointer;transition:.15s;white-space:nowrap}
   .hbtn:hover{background:var(--ink);color:var(--bg)}
   .rule{height:0;border:0;border-top:2.5px solid var(--line);margin:6px 0 20px}
 
@@ -12,7 +12,7 @@
   .tabs::-webkit-scrollbar{display:none}
   .tab{flex:0 0 auto;display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:13px;
     letter-spacing:1px;text-transform:uppercase;background:var(--tab-bg);color:var(--muted);
-    border:1.5px solid var(--line);padding:13px 17px;cursor:pointer;transition:.15s;white-space:nowrap;animation:rise .45s ease both}
+    border:var(--bw) solid var(--line);padding:13px 17px;cursor:pointer;transition:.15s;white-space:nowrap;animation:rise .45s ease both}
   .tab .ti{font-size:16px}
   .tab:hover{color:var(--ink)}
   .tab.active{background:var(--tab-active-bg);color:var(--tab-active-fg);border-color:var(--tab-active-bg)}
@@ -22,29 +22,29 @@
   .sec-ico{font-size:26px}
   .sec h2{font-family:var(--grotesk);font-weight:800;font-size:30px;letter-spacing:-.5px;text-transform:uppercase}
   .sec-count{font-family:var(--mono);font-size:14px;color:var(--accent);font-weight:500;white-space:nowrap}
-  .rule-thin{height:0;border:0;border-top:1.5px solid var(--line);margin:14px 0 20px}
+  .rule-thin{height:0;border:0;border-top:var(--bw) solid var(--line);margin:14px 0 20px}
 
   .center{display:flex;flex-direction:column;justify-content:center;min-height:100dvh;padding:26px 22px;max-width:var(--maxw);margin:0 auto}
   .setup .brand{font-size:40px;margin-bottom:4px}
   .setup .lead{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:14px 0 26px;line-height:1.6;letter-spacing:.3px}
   .field{margin-bottom:16px}
   .field label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
-  .field input{width:100%;background:var(--card);border:1.5px solid var(--line);color:var(--ink);padding:13px 14px;font-family:var(--mono);font-size:13.5px;transition:.15s}
+  .field input{width:100%;background:var(--card);border:var(--bw) solid var(--line);color:var(--ink);padding:13px 14px;font-family:var(--mono);font-size:13.5px;transition:.15s}
   .field input:focus{outline:none;border-color:var(--accent)}
   .hint{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:6px;line-height:1.5}
-  .btn{width:100%;margin-top:10px;background:var(--accent);color:var(--on-accent);border:1.5px solid var(--accent);padding:15px;font-family:var(--mono);font-weight:700;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:.15s}
+  .btn{width:100%;margin-top:10px;background:var(--accent);color:var(--on-accent);border:var(--bw) solid var(--accent);padding:15px;font-family:var(--mono);font-weight:700;font-size:14px;letter-spacing:var(--bw);text-transform:uppercase;cursor:pointer;transition:.15s}
   .btn:hover{filter:brightness(1.05)}
   .btn:disabled{opacity:.55;cursor:default}
   .formerr{font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:14px;min-height:1px;line-height:1.5}
 
-  .subtabs{display:flex;gap:18px;overflow-x:auto;margin-bottom:18px;scrollbar-width:none;border-bottom:1.5px solid var(--line-soft)}
+  .subtabs{display:flex;gap:18px;overflow-x:auto;margin-bottom:18px;scrollbar-width:none;border-bottom:var(--bw) solid var(--line-soft)}
   .subtabs::-webkit-scrollbar{display:none}
-  .subtab{flex:0 0 auto;background:none;border:none;border-bottom:2px solid transparent;color:var(--faint);font-family:var(--mono);font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:0 0 10px;cursor:pointer;transition:.15s;margin-bottom:-1.5px}
+  .subtab{flex:0 0 auto;background:none;border:none;border-bottom:2px solid transparent;color:var(--faint);font-family:var(--mono);font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:0 0 10px;cursor:pointer;transition:.15s;margin-bottom:-var(--bw)}
   .subtab:hover{color:var(--ink)}
   .subtab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
   .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:24px;z-index:1000;animation:fade .15s ease both}
-  .modal{background:var(--bg);border:1.5px solid var(--line);max-width:380px;width:100%;padding:22px;animation:rise .2s ease both}
+  .modal{background:var(--bg);border:var(--bw) solid var(--line);max-width:380px;width:100%;padding:22px;animation:rise .2s ease both}
   .modal-msg{font-family:var(--mono);font-size:14px;color:var(--ink);line-height:1.5;margin-bottom:18px}
   .modal-btns{display:flex;gap:8px}
   .modal-btns .btn{margin-top:0;flex:1}
@@ -54,7 +54,7 @@
     transform:translateX(-50%) translateY(16px);z-index:1000;
     display:flex;align-items:center;gap:7px;
     font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;
-    background:var(--tab-bg);color:var(--ink);border:1.5px solid var(--line);
+    background:var(--tab-bg);color:var(--ink);border:var(--bw) solid var(--line);
     padding:10px 16px;cursor:pointer;
     opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease,background .15s,color .15s}
   .totop .ar{font-size:14px;line-height:1}
@@ -64,11 +64,11 @@
   /* pull-to-refresh (мобильный жест) */
   .ptr{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-100%);z-index:1100;
     width:36px;height:36px;display:flex;align-items:center;justify-content:center;
-    background:var(--card);border:1.5px solid var(--line);border-radius:50%;box-shadow:0 3px 12px rgba(0,0,0,.28)}
+    background:var(--card);border:var(--bw) solid var(--line);border-radius:50%;box-shadow:0 3px 12px rgba(0,0,0,.28)}
   .ptr-i{width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%}
   .ptr.ready{border-color:var(--accent)}
   .ptr.ready .ptr-i{border-color:var(--accent)}
   .ptr.spin-on .ptr-i{animation:ptrspin .7s linear infinite}
 
-  .modal-input{width:100%;background:var(--card);border:1.5px solid var(--line);color:var(--ink);padding:10px 12px;font-family:var(--grotesk);font-size:14px;margin-bottom:16px}
+  .modal-input{width:100%;background:var(--card);border:var(--bw) solid var(--line);color:var(--ink);padding:10px 12px;font-family:var(--grotesk);font-size:14px;margin-bottom:16px}
   .modal-input:focus{outline:none;border-color:var(--accent)}

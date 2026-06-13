@@ -1,5 +1,5 @@
-  .cards{border:1.5px solid var(--line);animation:fade .3s ease both}
-  .card{padding:17px 18px;border-bottom:1.5px solid var(--line);background:var(--card)}
+  .cards{border:var(--bw) solid var(--line);animation:fade .3s ease both}
+  .card{padding:17px 18px;border-bottom:var(--bw) solid var(--line);background:var(--card)}
   .card:last-child{border-bottom:0}
   .card-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
   .word{font-family:var(--grotesk);font-weight:800;font-size:24px;letter-spacing:-.5px}
@@ -10,4 +10,4 @@
   .tr{font-size:15px;color:var(--ink);margin-bottom:5px}
   .ex{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.5}
   .ex .gt{color:var(--accent);font-weight:700;margin-right:7px}
-  .note-line{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-top:6px}
+  .note-line{font-family:var(--mono);font-size:1var(--bw);color:var(--faint);margin-top:6px}

@@ -3,7 +3,7 @@
   .rm-overall{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
   .rm-pct{font-family:var(--grotesk);font-weight:800;font-size:34px;letter-spacing:-1px}
   .rm-sub{font-family:var(--mono);font-size:12px;color:var(--faint)}
-  .rm-phase{border:1.5px solid var(--line);margin-bottom:10px;animation:fade .25s ease both}
+  .rm-phase{border:var(--bw) solid var(--line);margin-bottom:10px;animation:fade .25s ease both}
   .rm-phead{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;background:var(--card)}
   .rm-phead .pn{flex:1;font-family:var(--grotesk);font-weight:700;font-size:15px;line-height:1.2}
   .rm-phead .pc{font-family:var(--mono);font-size:11px;color:var(--faint);flex:0 0 auto}
@@ -11,10 +11,10 @@
   .rm-phase.open .rm-chev{color:var(--accent)}
   .segbar.rm-pbar{gap:2px;padding:0 15px 12px;margin:0;background:var(--card)}
   .segbar.rm-pbar .seg{height:6px}
-  .rm-body{padding:4px 15px 14px;background:var(--card);border-top:1.5px solid var(--line-soft)}
+  .rm-body{padding:4px 15px 14px;background:var(--card);border-top:var(--bw) solid var(--line-soft)}
   .rm-ms{margin:14px 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.5px;color:var(--faint);text-transform:uppercase}
   .rm-s{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-top:1px solid var(--line-soft)}
-  .rm-cb{flex:0 0 auto;width:20px;height:20px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;cursor:pointer;color:var(--on-accent);background:transparent;margin-top:1px;padding:0}
+  .rm-cb{flex:0 0 auto;width:20px;height:20px;border:var(--bw) solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;cursor:pointer;color:var(--on-accent);background:transparent;margin-top:1px;padding:0}
   .rm-cb.done{background:var(--accent);border-color:var(--accent)}
   .rm-smain{flex:1;cursor:pointer;min-width:0}
   .rm-stitle{font-size:14px;line-height:1.35}
