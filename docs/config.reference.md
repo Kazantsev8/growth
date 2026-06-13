@@ -57,11 +57,9 @@ modules:
     title: Sport
     icon: "🏋️"
     path: "Obsidian Vault/Personal/Sport"
-    kind: weekly-habit
+    kind: sport
     order: 4
     enabled: true
-    settings:
-      weeklyTarget: 3
   - id: tasks
     title: Tasks
     icon: "📋"
@@ -83,3 +81,4 @@ kind артефактов:
 - doc        — markdown-документ (рендерится как есть: заголовки, таблицы, списки)
 - checklist  — список - [ ] / - [x]
 - tasks      — таск-трекер (active/archived, файл на задачу, типы simple/checklist/steps)
+- sport      — трекер тренировок (журнал Sport_log.md + цветной хитмап/столбики) и программы (Workouts/*.md)
